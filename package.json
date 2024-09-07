@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bun run index.ts",
     "build-file": "bun build index.ts --target=bun --outdir=./build",
-    "compile": "bun build index.ts --target=bun --outdir=./build"
+    "compile": "bun build index.ts --compile --outfile=./build/blum_bot"
   },
   "devDependencies": {
     "@types/bun": "latest"
