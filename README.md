@@ -11,4 +11,4 @@ file exe nya juga ada di google drive
 
 ---
 
-soon : convert `index.js` ke `index.gs` agar bisa di hosting di google app script
+you can also host on google app script using `build/index.gs`

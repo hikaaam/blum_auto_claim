@@ -104,6 +104,12 @@ async function waitForGameFinish(
             `game id ${gameId} is finished with points : ${res.points}`
           );
         });
+        // const { availableBalance, playPasses } = await
+        getBalance(token).then(({ availableBalance, playPasses }) => {
+          console.log(
+            `\n\ntry checking your account\nYour Balance is : B.${availableBalance}\nyour game ticket is : ${playPasses}`
+          );
+        });
       }
     }, 1000);
   });
