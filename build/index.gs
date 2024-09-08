@@ -25,8 +25,18 @@ function getBalance(token) {
     method: "get",
     headers: Object.assign({}, headers, { authorization: "Bearer " + token }),
   };
-  var result = UrlFetchApp.fetch(game_url + user_path, options);
-  return JSON.parse(result.getContentText());
+  try {
+    var result = UrlFetchApp.fetch(game_url + farming_path, options);
+    return JSON.parse(result.getContentText());
+  } catch (e) {
+    return {
+      availableBalance: "error",
+      playPasses: 0,
+      isFastFarmingEnabled: false,
+      timestamp: "",
+    };
+  }
+  x;
 }
 
 // src/farming.gs
@@ -36,8 +46,12 @@ function startFarming(token) {
     method: "post",
     headers: Object.assign({}, headers, { authorization: "Bearer " + token }),
   };
-  var result = UrlFetchApp.fetch(game_url + farming_path, options);
-  return JSON.parse(result.getContentText());
+  try {
+    var result = UrlFetchApp.fetch(game_url + farming_path, options);
+    return JSON.parse(result.getContentText());
+  } catch (e) {
+    return false;
+  }
 }
 
 function claimFarming(token) {
