@@ -163,7 +163,9 @@ function doYourTasks(tasks, token) {
 }
 
 function mainFunction() {
-  var accounts = JSON.parse(DriveApp.getFileById("accountsFileId").getBlob().getDataAsString()); // Store accounts.json in Drive
+  // var accounts = JSON.parse(DriveApp.getFileById("accountsFileId").getBlob().getDataAsString()); 
+  // Store accounts.json in Drive
+  var accounts = [];
   for (var index = 0; index < accounts.length; index++) {
     var account = accounts[index];
     var loginResult = login(account);
