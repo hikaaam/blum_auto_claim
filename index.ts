@@ -15,12 +15,12 @@ const accounts: string[] = await accountRaw.json();
 
 const doYourTasks = async (tasks: iTask, token: string) => {
   console.log("\n\ncheck if you have any claimable tasks");
+ 
   for (let index = 0; index < tasks.tasks.length; index++) {
     const task = tasks?.tasks?.[index]?.subTasks ?? [];
-
     for (let i = 0; i < task.length; i++) {
       const { id, status, type } = task[i];
-      if (status === "NOT_STARTED" && type === "SOCIAL_SUBSCRIPTION") {
+      if (status === "NOT_STARTED" && (type === "SOCIAL_SUBSCRIPTION" || type=="SOCIAL_MEDIA_CHECK"))  {
         const started = await startYourTask({ token, id });
         if (started) {
           console.log(`Task ${started.title} is started`);
@@ -38,7 +38,7 @@ const doYourTasks = async (tasks: iTask, token: string) => {
 
     for (let i = 0; i < task.length; i++) {
       const { id, status, type } = task?.[i];
-      if (status === "NOT_STARTED" && type === "SOCIAL_SUBSCRIPTION") {
+      if (status === "NOT_STARTED" && (type === "SOCIAL_SUBSCRIPTION" || type==="SOCIAL_MEDIA_CHECK")) {
         const started = await startYourTask({ token, id });
         if (started) {
           console.log(`Task ${started.title} is started`);
@@ -58,7 +58,7 @@ const mainFunction = async () => {
     const {
       token: { access, user },
     } = await Login(account);
-    console.log(`\n\nsuccesfull login for user : ${user.username}\n\n`);
+    console.log(`\n\n\n\n\n\n----------------------------------------------------\n\nsuccesfull login for user : ${user.username}\n\n`);
     const rewards = await checkRewards(access);
     console.log("try to claim daily reward");
     if (!rewards) {
@@ -68,7 +68,7 @@ const mainFunction = async () => {
     }
     const { availableBalance, playPasses } = await getBalance(access);
     console.log(
-      `\n\ntry checking your account\nYour Balance is : B.${availableBalance}\nyour game ticket is : ${playPasses}`
+      `\n\ntry checking your account\nYour Before Balance is : B.${availableBalance}\nyour game ticket is : ${playPasses}`
     );
 
     const { startTime, endTime, earningsRate } = await startFarming({
@@ -99,6 +99,11 @@ const mainFunction = async () => {
         await waitForGameFinish(35, access, gameId);
       }
     }
+    const b = await getBalance(access);
+    console.log(
+      `\n\ntry checking your account(${user.username})\nYour After Balance is : B.${b.availableBalance}\nyour game ticket is : ${b.playPasses}`
+    );
+
   }
 };
 

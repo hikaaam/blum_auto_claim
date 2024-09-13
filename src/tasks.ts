@@ -15,7 +15,7 @@ interface SubSection {
 interface Task {
   id: string;
   kind: string;
-  type: "SOCIAL_SUBSCRIPTION" | "WALLET_CONNECTION" | "PROGRESS_TARGET";
+  type: "SOCIAL_SUBSCRIPTION" | "WALLET_CONNECTION" | "PROGRESS_TARGET" | "SOCIAL_MEDIA_CHECK";
   status: "NOT_STARTED" | "FINISHED";
   validationType: string;
   iconFileKey: string;
