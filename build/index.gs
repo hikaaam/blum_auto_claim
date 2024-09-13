@@ -1,6 +1,7 @@
 // src/config.gs
 var url = "https://user-domain.blum.codes/api/v1/";
 var game_url = "https://game-domain.blum.codes/api/v1/";
+var earn_url = "https://earn-domain.blum.codes/api/v1/";
 var headers = {
   accept: "application/json, text/plain, */*",
   "accept-language": "en-US,en;q=0.9",
@@ -137,7 +138,7 @@ function getTasks(token) {
     method: "get",
     headers: Object.assign({}, headers, { authorization: "Bearer " + token }),
   };
-  var result = UrlFetchApp.fetch(game_url + task_path_url, options);
+  var result = UrlFetchApp.fetch(earn_url + task_path_url, options);
   return JSON.parse(result.getContentText())[0];
 }
 
@@ -147,7 +148,7 @@ function startYourTask(token, id) {
     method: "post",
     headers: Object.assign({}, headers, { authorization: "Bearer " + token }),
   };
-  var result = UrlFetchApp.fetch(game_url + task_path_url, options);
+  var result = UrlFetchApp.fetch(earn_url + task_path_url, options);
   return JSON.parse(result.getContentText());
 }
 
@@ -157,7 +158,7 @@ function claimYourTask(token, id) {
     method: "post",
     headers: Object.assign({}, headers, { authorization: "Bearer " + token }),
   };
-  var result = UrlFetchApp.fetch(game_url + task_path_url, options);
+  var result = UrlFetchApp.fetch(earn_url + task_path_url, options);
   return JSON.parse(result.getContentText());
 }
 
