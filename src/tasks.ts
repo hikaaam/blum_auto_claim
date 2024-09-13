@@ -1,8 +1,9 @@
-import { headers, game_url as url } from "./config";
+import { headers } from "./config";
+const url = "https://earn-domain.blum.codes/api/v1/";
 const task_path_url = "tasks";
 
 export interface iTask {
-  tasks: any[];
+  tasks: iTaskArr[];
   subSections: SubSection[];
 }
 
@@ -138,3 +139,39 @@ export const claimYourTask = async ({
   const jsonResponse = (await response.json()) as iclaimYourTask;
   return jsonResponse;
 };
+
+interface iTaskArr {
+  id: string;
+  kind: string;
+  type: string;
+  status: string;
+  validationType: string;
+  iconFileKey: string;
+  bannerFileKey: null;
+  title: string;
+  productName: null;
+  description: null;
+  reward: string;
+  subTasks: SubTask[];
+  isHidden: boolean;
+  isDisclaimerRequired: boolean;
+}
+
+interface SubTask {
+  id: string;
+  kind: string;
+  type: string;
+  status: string;
+  validationType: string;
+  iconFileKey: string;
+  title: string;
+  productName: null;
+  reward: string;
+  socialSubscription: SocialSubscription;
+  isDisclaimerRequired: boolean;
+}
+
+interface SocialSubscription {
+  openInTelegram: boolean;
+  url: string;
+}

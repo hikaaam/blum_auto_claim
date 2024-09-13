@@ -15,12 +15,29 @@ const accounts: string[] = await accountRaw.json();
 
 const doYourTasks = async (tasks: iTask, token: string) => {
   console.log("\n\ncheck if you have any claimable tasks");
-
-  for (let index = 0; index < tasks.subSections.length; index++) {
-    const task = tasks.subSections[index].tasks;
+  for (let index = 0; index < tasks.tasks.length; index++) {
+    const task = tasks?.tasks?.[index]?.subTasks ?? [];
 
     for (let i = 0; i < task.length; i++) {
       const { id, status, type } = task[i];
+      if (status === "NOT_STARTED" && type === "SOCIAL_SUBSCRIPTION") {
+        const started = await startYourTask({ token, id });
+        if (started) {
+          console.log(`Task ${started.title} is started`);
+          const { reward } = await claimYourTask({ token, id });
+          console.log(
+            `Task ${started.title} is finish, you get your reward : ${reward}`
+          );
+        }
+      }
+    }
+  }
+
+  for (let index = 0; index < tasks.subSections.length; index++) {
+    const task = tasks?.subSections?.[index]?.tasks;
+
+    for (let i = 0; i < task.length; i++) {
+      const { id, status, type } = task?.[i];
       if (status === "NOT_STARTED" && type === "SOCIAL_SUBSCRIPTION") {
         const started = await startYourTask({ token, id });
         if (started) {

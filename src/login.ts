@@ -31,5 +31,7 @@ export const Login = async (account: string) => {
     method: "POST",
   });
   const jsonRes: iLogin = await result.json();
+  console.log({ token: jsonRes.token });
+
   return jsonRes;
 };
