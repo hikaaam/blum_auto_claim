@@ -18,13 +18,17 @@ interface Reward {
 }
 
 export const checkRewards = async (token: string) => {
-  const result = await fetch(game_url + path, {
-    headers: {
-      ...headers,
-      authorization: "Bearer " + token,
+  const result = await fetch(
+    "https://game-domain.blum.codes/api/v2/daily-reward",
+    {
+      headers: {
+        ...headers,
+        authorization: "Bearer " + token,
+      },
+      method: "POST",
     },
-    method: "GET",
-  });
+  );
+
   if (result.status != 200) {
     return false;
   }

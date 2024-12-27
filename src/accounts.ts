@@ -16,6 +16,7 @@ export const getBalance = async (token: string) => {
     },
     method: "GET",
   });
+
   const jsonRes: iBalance = await result.json();
   return jsonRes;
 };

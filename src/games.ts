@@ -34,6 +34,7 @@ export const claimGame = async (token: string, gameId: string) => {
       points,
     }),
   });
+
   const jsonRes: string = await result.text();
   return {
     points,

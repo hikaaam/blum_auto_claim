@@ -23,13 +23,20 @@ interface Id {
 const loginPath = "auth/provider/PROVIDER_TELEGRAM_MINI_APP";
 
 export const Login = async (account: string) => {
-  const result = await fetch(url + loginPath, {
-    headers,
-    body: JSON.stringify({
-      query: account,
-    }),
-    method: "POST",
-  });
-  const jsonRes: iLogin = await result.json();
-  return jsonRes;
+  try {
+    const result = await fetch(url + loginPath, {
+      headers,
+      body: JSON.stringify({
+        query: account,
+      }),
+      method: "POST",
+    });
+
+    const jsonRes: iLogin = await result.json();
+    return jsonRes;
+  } catch (error) {
+    console.log({ error });
+
+    return null;
+  }
 };

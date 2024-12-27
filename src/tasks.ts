@@ -2,21 +2,22 @@ import { headers } from "./config";
 const url = "https://earn-domain.blum.codes/api/v1/";
 const task_path_url = "tasks";
 
-export interface iTask {
-  tasks: iTaskArr[];
-  subSections: SubSection[];
-}
-
-interface SubSection {
+export interface SubSection {
   title: string;
   tasks: Task[];
 }
 
-interface Task {
+export interface Task {
   id: string;
   kind: string;
-  type: "SOCIAL_SUBSCRIPTION" | "WALLET_CONNECTION" | "PROGRESS_TARGET" | "SOCIAL_MEDIA_CHECK";
-  status: "NOT_STARTED" | "FINISHED";
+  type:
+    | "SOCIAL_SUBSCRIPTION"
+    | "SOCIAL_MEDIA_CHECK"
+    | "WALLET_CONNECTION"
+    | "PROGRESS_TARGET"
+    | "APPLICATION_LAUNCH"
+    | "GROUP";
+  status: "NOT_STARTED" | "FINISHED" | "READY_FOR_CLAIM";
   validationType: string;
   iconFileKey: string;
   bannerFileKey: null;
@@ -28,6 +29,9 @@ interface Task {
   isHidden: boolean;
   isDisclaimerRequired: boolean;
   progressTarget?: ProgressTarget;
+  subTasks: SubTask[];
+  isShared: boolean;
+  sharingDescription: string;
 }
 
 interface ProgressTarget {
@@ -48,15 +52,21 @@ export const getTasks = async (token: string) => {
       authorization: "Bearer " + token,
     },
   });
-  const jsonResponse = (await response.json()) as iTask[];
-  return jsonResponse?.[0];
+  const jsonResponse = (await response.json()) as iGetYourTask[];
+
+  return jsonResponse;
 };
 
 interface iStartTask {
   id: string;
   kind: string;
-  type: "SOCIAL_SUBSCRIPTION" | "WALLET_CONNECTION" | "PROGRESS_TARGET";
-  status: string;
+  type:
+    | "SOCIAL_SUBSCRIPTION"
+    | "SOCIAL_MEDIA_CHECK"
+    | "WALLET_CONNECTION"
+    | "PROGRESS_TARGET"
+    | "APPLICATION_LAUNCH";
+  status: "NOT_STARTED" | "FINISHED" | "READY_FOR_CLAIM";
   validationType: string;
   iconFileKey: string;
   bannerFileKey: null;
@@ -133,35 +143,31 @@ export const claimYourTask = async ({
     method: "POST",
   });
   if (response.status != 200) {
-    console.log({ response });
+    return null;
   }
 
   const jsonResponse = (await response.json()) as iclaimYourTask;
   return jsonResponse;
 };
 
-interface iTaskArr {
-  id: string;
-  kind: string;
-  type: string;
-  status: string;
-  validationType: string;
-  iconFileKey: string;
-  bannerFileKey: null;
-  title: string;
-  productName: null;
-  description: null;
-  reward: string;
-  subTasks: SubTask[];
-  isHidden: boolean;
-  isDisclaimerRequired: boolean;
+export interface iGetYourTask {
+  sectionType: string;
+  tasks: Task[];
+  subSections: SubSection[];
+  title?: string;
 }
 
-interface SubTask {
+export interface SubTask {
   id: string;
   kind: string;
-  type: string;
-  status: string;
+  type:
+    | "SOCIAL_SUBSCRIPTION"
+    | "SOCIAL_MEDIA_CHECK"
+    | "WALLET_CONNECTION"
+    | "PROGRESS_TARGET"
+    | "APPLICATION_LAUNCH"
+    | "GROUP";
+  status: "NOT_STARTED" | "FINISHED" | "READY_FOR_CLAIM";
   validationType: string;
   iconFileKey: string;
   title: string;
@@ -169,8 +175,21 @@ interface SubTask {
   reward: string;
   socialSubscription: SocialSubscription;
   isDisclaimerRequired: boolean;
+  subTasks: SubTask[];
+  progressTarget?: ProgressTarget;
 }
 
+interface SocialSubscription {
+  openInTelegram: boolean;
+  url: string;
+}
+
+interface ProgressTarget {
+  target: string;
+  progress: string;
+  accuracy: number;
+  postfix: string;
+}
 interface SocialSubscription {
   openInTelegram: boolean;
   url: string;
