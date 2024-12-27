@@ -3,20 +3,24 @@ var url = "https://user-domain.blum.codes/api/v1/";
 var game_url = "https://game-domain.blum.codes/api/v1/";
 var earn_url = "https://earn-domain.blum.codes/api/v1/";
 
+  var accounts = [
+]
+
 var headers = {
   accept: "application/json, text/plain, */*",
   "accept-language": "en-US,en;q=0.9",
   "content-type": "application/json",
   origin: "https://telegram.blum.codes",
-  priority: "u=1, i",
+  priority: "u=0",
   "sec-ch-ua": '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
   "sec-ch-ua-mobile": "?0",
   "sec-ch-ua-platform": "Windows",
   "sec-fetch-dest": "empty",
   "sec-fetch-mode": "cors",
   "sec-fetch-site": "same-site",
-  "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-};
+  "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+  "TE": "trailers",
+}
 
 // src/accounts.gs
 function getBalance(token) {
@@ -119,11 +123,11 @@ function login(account) {
 function checkRewards(token) {
   var path = "daily-reward?offset=-420";
   var options = {
-    method: "get",
+    method: "POST",
     headers: Object.assign({}, headers, { authorization: "Bearer " + token })
   };
   try{
-  var result = UrlFetchApp.fetch(game_url + path, options);
+  var result = UrlFetchApp.fetch("https://game-domain.blum.codes/api/v2/daily-reward", options);
     if (result.getResponseCode() !== 200) {
       return false;
     }
@@ -142,7 +146,7 @@ function getTasks(token) {
     headers: Object.assign({}, headers, { authorization: "Bearer " + token })
   };
   var result = UrlFetchApp.fetch(earn_url + task_path_url, options);
-  return JSON.parse(result.getContentText())[0];
+  return JSON.parse(result.getContentText());
 }
 
 function startYourTask(token, id) {
@@ -176,40 +180,58 @@ function waitForGameFinish(seconds, token, gameId) {
 }
 
 function doYourTasks(tasks, token) {
-  Logger.log("\n\nCheck if you have any claimable tasks");
-    for (var index = 0; index < tasks?.tasks?.length ?? 0; index++) {
-    var taskList = tasks?.tasks?.[index].subTasks ?? [];
-    for (var i = 0; i < taskList.length; i++) {
-      var task = taskList[i];
-      if (task.status === "NOT_STARTED" && (task.type === "SOCIAL_SUBSCRIPTION" || task.type === "SOCIAL_MEDIA_CHECK")) {
-        var started = startYourTask(token, task.id);
+  Logger.log("\n\ncheck if you have any claimable tasks, topLevelTask:" + (tasks?.length ?? 0));
+  const checkForClaim = async (title, id, status) => {
+    if (status === "READY_FOR_CLAIM") {
+      Logger.log(`Task ${title} is started`);
+      const claimRes = claimYourTask(token,id);
+      if (claimRes) {
+        Logger.log(`Task ${claimRes?.title} is finish, you get your reward : ${claimRes?.reward}`);
+      }
+    }
+  };
+  const oneHellOFALoops = async (task,token) => {
+    for (let i = 0;i < task.length; i++) {
+      const { id, status, type, title, ...theRestTask } = task[i];
+      Logger.log(`:::${title}::: status: ${status}, type:${type}, ${theRestTask?.progressTarget?.target ? "target:" + theRestTask?.progressTarget?.target + "," : ""}  subTasksTotal:${theRestTask?.subTasks?.length ?? 0}`);
+      checkForClaim(title, id, status);
+      if (theRestTask?.subTasks?.length > 1) {
+        oneHellOFALoops(theRestTask?.subTasks);
+      }
+      if (status === "NOT_STARTED" && (type === "SOCIAL_SUBSCRIPTION" || type == "SOCIAL_MEDIA_CHECK")) {
+        const started = startYourTask(token,id);
         if (started) {
-          Logger.log("Task " + started.title + " is started");
-          var reward = claimYourTask(token, task.id).reward;
-          Logger.log("Task " + started.title + " is finished, you get your reward: " + reward);
+          Logger.log(`Task ${started.title} is started`);
+          const claimRes = claimYourTask(token,id);
+          if (claimRes) {
+            Logger.log(`Task ${claimRes?.title} is finish, you get your reward : ${claimRes?.reward}`);
+          }
         }
       }
     }
-  }
-
-  for (var index = 0; index < tasks?.subSections?.length ?? 0; index++) {
-    var taskList = tasks?.subSections?.[index]?.tasks ?? [];
-    for (var i = 0; i < taskList.length; i++) {
-      var task = taskList[i];
-      if (task.status === "NOT_STARTED" && (task.type === "SOCIAL_SUBSCRIPTION" || task.type === "SOCIAL_MEDIA_CHECK")) {
-        var started = startYourTask(token, task.id);
-        if (started) {
-          Logger.log("Task " + started.title + " is started");
-          var reward = claimYourTask(token, task.id).reward;
-          Logger.log("Task " + started.title + " is finished, you get your reward: " + reward);
-        }
-      }
+  };
+  const subSectionsLoops = async (subSections) => {
+    for (let i = 0;i < subSections.length; i++) {
+      const section = subSections[i];
+      Logger.log("\n--------------------------------------------------");
+      Logger.log(`Section of ${section?.title}, totalTasks:${section?.tasks?.length ?? 0}`);
+      Logger.log("--------------------------------------------------");
+      const sectionTasks = section?.tasks ?? [];
+      oneHellOFALoops(sectionTasks);
     }
+  };
+  for (let t = 0;t < tasks.length; t++) {
+    Logger.log("\n--------------------------------------------------");
+    Logger.log(`\n\n\nChecking For SectionType of ${tasks[t]?.sectionType}, Tasks:${tasks[t]?.tasks?.length ?? 0}, Sections:${tasks[t]?.subSections?.length ?? 0}`);
+    Logger.log("--------------------------------------------------");
+    const subTasks = tasks[t]?.tasks ?? [];
+    const sections = tasks[t]?.subSections ?? [];
+    oneHellOFALoops(subTasks);
+    subSectionsLoops(sections);
   }
 }
 
 function mainFunction() {
-  var accounts = []
   for (var index = 0; index < accounts.length; index++) {
     var account = accounts[index];
     var loginResult = login(account);
@@ -243,19 +265,19 @@ function mainFunction() {
       Logger.log("\n\nFarming for account " + user.username + " has started with \nStartDate: " + startDate.toLocaleString() + "\nEndDate: " + endDate.toLocaleString() + "\nEarnings Rate: " + farmingData.earningsRate);
     }
 
-    var tasks = getTasks(access);
-    doYourTasks(tasks, access);
-
-    Logger.log("\n\nTry playing your game");
-    if (balanceData.playPasses > 0) {
-      for (var i = 0; i < 10; i++) {
-        var gameResult = playGame(access);
-        Logger.log("Game started with game id: (" + gameResult.gameId + ")");
-        waitForGameFinish(35, access, gameResult.gameId);
-      }
-    } else{
-      Logger.log("\n\nNot Enough play passes");
-    }
+    var getTasksRes = getTasks(access);
+    doYourTasks(getTasksRes, access);
+    Logger.log("\n\nNOTE : AUTOMATIC GAME FEATURE IS NOT WORKING DUE TO PROGRAMMER UNABLE TO CRACK ENCRYPTION");
+    Logger.log("PLEASE MANUALLY RUN YOUR GAME");
+    // if (balanceData.playPasses > 0) {
+    //   for (var i = 0; i < balanceData.playPasses; i++) {
+    //     var gameResult = playGame(access);
+    //     Logger.log("Game started with game id: (" + gameResult.gameId + ")");
+    //     waitForGameFinish(35, access, gameResult.gameId);
+    //   }
+    // } else{
+    //   Logger.log("\n\nNot Enough play passes");
+    // }
     var balanceData = getBalance(access);
     Logger.log("\n\nCheck your account\nYour after Balance is: B." + balanceData.availableBalance + "\nYour game ticket is: " + balanceData.playPasses);
   }
