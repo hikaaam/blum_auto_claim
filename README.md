@@ -15,7 +15,7 @@
 7. type `allow pasting` (note: you need to type it manually)
 8. then copy and paste this script into console `copy(Telegram.WebApp.initData)` (now you have your login credential in your clipboard, do not share this to anyone)
 ![alt text](src/assets/image-2.png)
-9. go download the latest version release zip from (https://github.com/hikaaam/blum_auto_claim/releases/tag/main)[https://github.com/hikaaam/blum_auto_claim/releases/tag/main]
+9. go download the latest version release zip from [https://github.com/hikaaam/blum_auto_claim/releases/tag/main](https://github.com/hikaaam/blum_auto_claim/releases/tag/main)
 10. extract the zip file
 11. right click on `accounts.json` open with notepad
 12. paste your login credential that you get from step 8 into `accounts.json` and save it 
