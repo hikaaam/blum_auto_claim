@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bun run index.ts",
     "build-file": "bun build index.ts --target=bun --outdir=./build",
-    "compile": "bun build index.ts --compile --minify --outfile=./build/blum_bot_v1.0.2 --define process.env.NODE_ENV:'production'"
+    "compile": "bun build index.ts --compile --minify --outfile=./build/blum_bot_v2.0.0 --define process.env.NODE_ENV:'production'"
   },
   "devDependencies": {
     "@types/bun": "latest"
